@@ -1,0 +1,33 @@
+name: Docker images build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # buduje backend
+      - name: Build backend image
+        run: docker build -t devops-backend:ci ./backend
+
+      # buduje frontend
+      - name: Build frontend image
+        run: docker build -t devops-frontend:ci ./frontend
+
+      # opcjonalnie: sprawdza compose (czy wstaje)
+      - name: Compose up (smoke test)
+        run: |
+          docker compose up -d --build
+          docker compose ps
+          docker compose down
+
